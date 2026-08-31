@@ -1,0 +1,80 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{page.title}}</title>
+{{#if page.description}}
+<meta name="description" content="{{page.description}}">
+{{/if}}
+{{#if page.noindex}}
+<meta name="robots" content="noindex, nofollow">
+{{/if}}
+<link rel="canonical" href="{{cfg.site.url}}/{{page.url}}{{#if page.url}}/{{/if}}">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/icons/favicon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="/icons/favicon-180.png">
+<meta name="theme-color" content="#14243f">
+
+<meta property="og:site_name" content="{{cfg.site.name}}">
+<meta property="og:title" content="{{page.title}}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{cfg.site.url}}/{{page.url}}{{#if page.url}}/{{/if}}">
+<meta property="og:image" content="{{cfg.site.url}}/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+{{#if page.description}}
+<meta property="og:description" content="{{page.description}}">
+{{/if}}
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="/{{page.cssName}}">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "InsuranceAgency",
+  "name": "The Barthel Agency",
+  "legalName": "The Barthel Agency, Inc.",
+  "description": "Independent insurance, employee benefits, and financial services firm serving Princeton and Gibson County, Indiana since 1973.",
+  "url": "{{cfg.site.url}}/",
+  "telephone": "+1-812-386-7727",
+  "faxNumber": "+1-812-386-7729",
+  "email": "{{cfg.site.email}}",
+  "foundingDate": "1973",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "118 S. Main St",
+    "addressLocality": "Princeton",
+    "addressRegion": "IN",
+    "postalCode": "47670",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 38.3546,
+    "longitude": -87.5672
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Princeton" },
+    { "@type": "County", "name": "Gibson County" },
+    { "@type": "State", "name": "Indiana" }
+  ],
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+      "opens": "08:00",
+      "closes": "16:30"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Friday",
+      "opens": "08:00",
+      "closes": "12:00"
+    }
+  ],
+  "sameAs": [
+    "{{cfg.site.social.facebook}}",
+    "{{cfg.site.social.linkedin}}",
+    "{{cfg.site.social.twitter}}"
+  ]
+}
+</script>

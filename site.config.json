@@ -1,0 +1,34 @@
+{
+  "site": {
+    "name": "The Barthel Agency",
+    "legalName": "The Barthel Agency, Inc.",
+    "tagline": "Insurance. Investments. Employee Benefits.",
+    "description": "Independent insurance, employee benefits, and financial services firm in Princeton, Indiana. Serving Princeton and Gibson County since 1973.",
+    "url": "https://www.thebarthelagency.com",
+    "conceptUrl": "https://www.thebarthelagency.com",
+    "phone": "(812) 386-7727",
+    "phoneHref": "tel:+18123867727",
+    "fax": "(812) 386-7729",
+    "email": "info@thebarthelagency.com",
+    "founded": 1973,
+    "address": {
+      "street": "118 S. Main St",
+      "city": "Princeton",
+      "state": "IN",
+      "zip": "47670",
+      "lat": 38.3546,
+      "lng": -87.5672
+    },
+    "hours": [
+      { "days": "Monday – Thursday", "time": "8:00 AM – 4:30 PM" },
+      { "days": "Friday", "time": "8:00 AM – 12:00 PM" },
+      { "days": "Saturday – Sunday", "time": "Closed" }
+    ],
+    "social": {
+      "facebook": "https://www.facebook.com/BarthelAgency",
+      "linkedin": "https://www.linkedin.com/company/the-barthel-agency",
+      "twitter": "https://www.twitter.com/BarthelAgency"
+    },
+    "conceptNote": "Speculative redesign prototype — content compiled from public sources; not the agency's current website."
+  }
+}

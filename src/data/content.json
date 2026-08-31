@@ -1,0 +1,81 @@
+{
+  "people": [
+    {
+      "id": "chris-barthel",
+      "name": "Chris S. Barthel",
+      "credentials": "CFP\u00ae, ChFC\u00ae",
+      "title": "Financial Advisor",
+      "photo": "/img/team-chris-barthel",
+      "phone": "(812) 386-7727",
+      "email": null,
+      "focus": [
+        "Financial & retirement planning",
+        "Employee benefits for area employers",
+        "Life & long-term care insurance"
+      ],
+      "bio": "Chris leads the agency\u2019s financial and employee benefits practice, working with individuals, families, and employers across the Tri-State. He has served Princeton-area clients since the mid-1990s and holds the Certified Financial Planner\u2122 and Chartered Financial Consultant\u00ae designations.",
+      "industryNote": "In the financial services industry since 1995; investment adviser representative of LPL Enterprise, LLC (per FINRA BrokerCheck public record).",
+      "schema": {
+        "jobTitle": "Financial Advisor",
+        "birthDate": "1967-09"
+      }
+    },
+    {
+      "id": "susan-farmer",
+      "name": "Susan Farmer",
+      "credentials": null,
+      "title": "Health Insurance Specialist",
+      "photo": "/img/team-susan-farmer",
+      "phone": "(812) 386-7727",
+      "email": "Susan@thebarthelagency.com",
+      "focus": [
+        "Individual & family health plans",
+        "Medicare coverage options",
+        "Health quote service & support"
+      ],
+      "bio": "Susan helps individuals, families, and seniors sort through health coverage choices \u2014 from ACA marketplace plans to Medicare options \u2014 and sticks around to help when questions come up mid-year.",
+      "industryNote": null,
+      "schema": {
+        "jobTitle": "Health Insurance Specialist",
+        "birthDate": null
+      }
+    },
+    {
+      "id": "jennifer-mackay",
+      "name": "Jennifer MacKay",
+      "credentials": "CISR Elite",
+      "title": "Property & Casualty Insurance Specialist",
+      "photo": "/img/team-jennifer-mackay",
+      "phone": "(812) 386-7727",
+      "email": "Jennifer@thebarthelagency.com",
+      "focus": [
+        "Auto & home insurance",
+        "Farm, RV, boat & umbrella coverage",
+        "Policy reviews & service requests"
+      ],
+      "bio": "Jennifer handles the agency\u2019s property and casualty book \u2014 auto, home, and the campers, boats, and side-by-sides that come with life in Gibson County. She holds the CISR Elite designation and keeps policies working the way they should.",
+      "industryNote": null,
+      "schema": {
+        "jobTitle": "Property & Casualty Insurance Specialist",
+        "birthDate": null
+      }
+    }
+  ],
+  "quotes": [
+    { "label": "Auto Quote", "url": "https://admin.emeraldconnect.com/admin/form.cfm?ID=13&SSLID=72258&SN=0", "kind": "external-form" },
+    { "label": "Homeowners Quote", "url": "https://admin.emeraldconnect.com/admin/form.cfm?ID=101&SSLID=72258&SN=0", "kind": "external-form" },
+    { "label": "Business Insurance (CoverWallet)", "url": "https://app.coverwallet.com/?agent_uuid=52e9f4a4-3d03-7c3c-cfc4-fbd2f9f28d71", "kind": "external-form" },
+    { "label": "Health Insurance (HealthSherpa)", "url": "https://www.healthsherpa.com/?agent_id=chris-barthel", "kind": "external-form" },
+    { "label": "Motorcycle / UTV / ATV / Golf Cart Quote", "url": "https://admin.emeraldconnect.com/admin/form.cfm?ID=16&SSLID=72258&SN=0", "kind": "external-form" },
+    { "label": "Camper / RV Quote", "url": "https://admin.emeraldconnect.com/admin/form.cfm?ID=17&SSLID=72258&SN=0", "kind": "external-form" },
+    { "label": "Boat / Jet Ski Quote", "url": "https://admin.emeraldconnect.com/admin/form.cfm?ID=18&SSLID=72258&SN=0", "kind": "external-form" }
+  ],
+  "serviceForms": [
+    { "label": "Auto Policy Change Request", "url": "https://www.emeraldsecure.com/form.cfm?ID=8&SSLID=72258" },
+    { "label": "Property Loss Notice", "url": "https://www.emeraldsecure.com/form.cfm?ID=9&SSLID=72258" },
+    { "label": "Auto Insurance ID Card Request", "url": "https://www.emeraldsecure.com/form.cfm?ID=10&SSLID=72258" },
+    { "label": "Automobile Loss Notice", "url": "https://www.emeraldsecure.com/form.cfm?ID=11&SSLID=72258" },
+    { "label": "Renewal Notice Reminder", "url": "https://www.emeraldsecure.com/form.cfm?ID=12&SSLID=72258" },
+    { "label": "Homeowners Service Request", "url": "https://www.emeraldsecure.com/form.cfm?ID=103&SSLID=72258" }
+  ]
+}
