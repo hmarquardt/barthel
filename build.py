@@ -181,6 +181,11 @@ def build():
         _page_ctx["cssName"] = css_name
         _page_ctx["jsName"] = js_name
 
+        # nav section flags drive aria-current in the header partial
+        section = meta.get("navSection", "none")
+        for flag in ("insurance", "financial", "benefits", "about", "resources", "contact"):
+            _page_ctx[f"nav{flag.capitalize()}"] = "true" if section == flag else ""
+
         body = render_text(raw)
         _page_ctx["body"] = body
 
