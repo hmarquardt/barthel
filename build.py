@@ -138,8 +138,12 @@ def build():
         shutil.rmtree(DIST)
     DIST.mkdir()
 
-    # static assets
-    shutil.copytree(SRC / "img", DIST / "img")
+    # static assets (skip unused master files; pages reference webp variants)
+    SKIP_IMG = {"logo.png", "logo-alpha.png", "logo-white.png"}
+    (DIST / "img").mkdir()
+    for img in (SRC / "img").iterdir():
+        if img.name not in SKIP_IMG:
+            shutil.copy(img, DIST / "img" / img.name)
     (DIST / "icons").mkdir()
     for icon in (ROOT / "assets" / "icons").glob("*"):
         shutil.copy(icon, DIST / "icons" / icon.name)

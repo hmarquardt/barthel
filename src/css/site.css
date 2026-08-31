@@ -1306,6 +1306,21 @@ small,
    Responsive
    ========================================================================== */
 
+@media (max-width: 1120px) {
+  .nav__link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.92rem;
+  }
+
+  .header__cta .btn {
+    padding: 0.7rem 0.95rem;
+  }
+
+  .header__inner {
+    gap: var(--space-3);
+  }
+}
+
 @media (max-width: 960px) {
   .hero__inner {
     grid-template-columns: 1fr;
@@ -1318,9 +1333,10 @@ small,
   }
 
   .hero__badge {
-    left: auto;
-    right: -8px;
-    bottom: -16px;
+    position: static;
+    display: inline-block;
+    margin-top: var(--space-3);
+    max-width: none;
   }
 
   .grid-3 {

@@ -100,7 +100,13 @@ def logo_alpha():
         bottom = min(out.height, bbox[3] + pad)
         out = out.crop((left, top, right, bottom))
     out.save(OUT / "logo-alpha.png", "PNG", optimize=True)
-    print(f"logo-alpha.png: {(OUT / 'logo-alpha.png').stat().st_size // 1024} KB {out.size}")
+    # web-ready size: 2x the 222px header render
+    web = out.resize((444, int(out.height * 444 / out.width)), Image.LANCZOS)
+    web.save(OUT / "logo-alpha.webp", "WEBP", quality=92, method=6)
+    print(
+        f"logo-alpha.png: {(OUT / 'logo-alpha.png').stat().st_size // 1024} KB {out.size}"
+        f" | webp {(OUT / 'logo-alpha.webp').stat().st_size // 1024} KB"
+    )
 
 
 def logo_white():
@@ -117,7 +123,12 @@ def logo_white():
             if not is_gold:
                 px[x, y] = (247, 244, 238, a)
     img.save(OUT / "logo-white.png", "PNG", optimize=True)
-    print(f"logo-white.png: {(OUT / 'logo-white.png').stat().st_size // 1024} KB {img.size}")
+    web = img.resize((444, int(img.height * 444 / img.width)), Image.LANCZOS)
+    web.save(OUT / "logo-white.webp", "WEBP", quality=92, method=6)
+    print(
+        f"logo-white.png: {(OUT / 'logo-white.png').stat().st_size // 1024} KB {img.size}"
+        f" | webp {(OUT / 'logo-white.webp').stat().st_size // 1024} KB"
+    )
 
 
 def georgia_font(size, bold=True):
@@ -186,9 +197,9 @@ def og_image():
     bbox = d.textbbox((0, 0), loc, font=f_loc)
     d.text(((w - bbox[2]) / 2, card_y + card_h + 108), loc, font=f_loc, fill=(90, 100, 112))
 
-    path = OUT / "og-image.png"
-    img.save(path, "PNG", optimize=True)
-    print(f"og-image.png: {path.stat().st_size // 1024} KB {img.size}")
+    path_jpg = OUT / "og-image.jpg"
+    img.save(path_jpg, "JPEG", quality=86, optimize=True, progressive=True)
+    print(f"og-image.jpg: {path_jpg.stat().st_size // 1024} KB {img.size}")
 
 
 if __name__ == "__main__":

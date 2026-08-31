@@ -10,6 +10,7 @@
   function openNav() {
     if (!panel) return;
     panel.hidden = false;
+    panel.classList.add('is-open');
     toggle.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
     if (closeBtn) closeBtn.focus();
@@ -18,9 +19,18 @@
   function closeNav() {
     if (!panel) return;
     panel.hidden = true;
+    panel.classList.remove('is-open');
     toggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
     toggle.focus();
+  }
+
+  function shutNav() {
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
+    panel.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
   }
 
   if (toggle && panel) {
@@ -31,11 +41,7 @@
       if (e.key === 'Escape' && !panel.hidden) closeNav();
     });
     panel.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        panel.hidden = true;
-        toggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      });
+      a.addEventListener('click', shutNav);
     });
   }
 
