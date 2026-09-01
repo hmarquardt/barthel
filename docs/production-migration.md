@@ -125,6 +125,13 @@ Notes:
 ## 8. Technical cutover checklist
 
 - [ ] `build.py` output (`dist/`) deployed to the chosen host.
+      - GitHub Pages: the committed workflow (`.github/workflows/
+        deploy-pages.yml`) builds with `--base /barthel --noindex` for the
+        project-URL prototype. For a production deploy on the agency's own
+        domain (custom domain or user site), build with **no flags** —
+        base `/`, indexable, canonical URLs unchanged — and switch the
+        Pages source to "GitHub Actions" (`gh api -X PUT repos/…/pages -f
+        build_type=workflow`) if it is still set to "deploy from branch".
 - [ ] Security headers (host config or `_headers` file):
       - `Strict-Transport-Security` (after redirect verification)
       - `X-Content-Type-Options: nosniff`

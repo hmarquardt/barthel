@@ -122,9 +122,23 @@ Rules the rewrite follows (enforced by the QA suite):
 `actions/deploy-pages`. No `dist/` is ever committed; the build needs
 nothing beyond the Python stdlib.
 
-- Live at: `https://hmarquardt.github.io/barthel/`
+- Intended live URL: `https://hmarquardt.github.io/barthel/`
 - The prototype is intentionally noindexed there (private-ish sales
   collateral). To index it anyway, drop `--noindex` from the workflow.
+
+> **One-time setting required:** the repository's Pages source is currently
+> *"deploy from branch"* (a leftover from the initial README test), so a
+> legacy Jekyll build re-publishes the README over the workflow's artifact
+> after every push. To hand Pages to the workflow, switch the source once —
+> either **Settings → Pages → Build and deployment → Source: "GitHub
+> Actions"**, or:
+>
+> ```bash
+> gh api -X PUT repos/hmarquardt/barthel/pages -f build_type=workflow
+> ```
+>
+> Then re-run the workflow (Actions → "Deploy to GitHub Pages" → Run
+> workflow, or just push). The workflow itself needs no changes.
 
 ### Production / custom domain
 
