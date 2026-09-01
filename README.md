@@ -19,9 +19,10 @@ information, imagery, and history.
 | `tools/process_assets.py` | Regenerates optimized images from `assets/original/` (requires Pillow) |
 | `tools/serve.py` | Serves `dist/` locally for preview |
 | `tools/qa.py` | Playwright QA suite (overflow, SEO tags, console, menu, form, keyboard) |
+| `.github/workflows/deploy-pages.yml` | GitHub Pages deployment workflow |
 | `assets/original/` | Original downloaded public assets (provenance) |
 | `assets/icons/` | Generated favicon set |
-| `dist/` | Generated site — the deployable artifact |
+| `dist/` | Generated site — the deployable artifact (gitignored, built on deploy) |
 | `docs/` | Content verification + production migration notes |
 
 ## Architecture
@@ -76,17 +77,62 @@ python3 tools/serve.py &     # in one shell
 python3 tools/qa.py          # in another
 ```
 
-## Deployment
+For a build made with `--base /barthel --noindex`, verify it like this
+(serve the build under a matching path prefix, then point the suite at it):
 
-`dist/` is plain static files — deployable to any static host (Netlify,
-Cloudflare Pages, GitHub Pages, S3+, or an Apache/nginx vhost).
+```bash
+python3 build.py --base /barthel --noindex
+mkdir -p /tmp/qa_root && ln -sfn "$PWD/dist" /tmp/qa_root/barthel
+python3 -m http.server 8909 --directory /tmp/qa_root &
+python3 tools/qa.py --base http://127.0.0.1:8909 --root /barthel --expect-noindex
+```
 
-- Serve over **HTTPS only**; see `docs/production-migration.md` for the
-  certificate/host/redirect/HSTS checklist.
-- Legacy URLs (`team.htm`, `contact_us/`, etc.) should receive 301
-  redirects — a complete map is in `docs/production-migration.md`.
-- A Netlify-style `_redirects` file can be generated from that table; none
-  is committed because the production host is not yet chosen.
+## Deployment & base-path behavior
+
+All internal URLs in the source are root-absolute (`/insurance/`,
+`/img/...`). The build rewrites them in one central place — `build.py`'s
+`--base` option — so templates never hardcode a deployment prefix:
+
+| Target | Command | Result |
+| ------ | ------- | ------ |
+| Production / custom domain (default) | `python3 build.py` | URLs stay `/...`; canonical + sitemap use `site.url` from `site.config.json`; site is indexable |
+| GitHub project Pages | `python3 build.py --base /barthel --noindex` | Every internal URL becomes `/barthel/...`; every page gets `<meta name="robots" content="noindex, nofollow">`; `robots.txt` becomes `Disallow: /` |
+| Any other subpath | `python3 build.py --base /somepath` | Same prefixing, indexing unchanged |
+
+Rules the rewrite follows (enforced by the QA suite):
+
+- Only internal root-absolute `href`/`src`/`content`/`action` attributes are
+  prefixed. External URLs (`https://…`), protocol-relative (`//…`),
+  mailto/tel links, and fragment anchors (`#quote`) are untouched.
+- Canonical URLs, Open Graph URLs, JSON-LD, and `sitemap.xml` always use the
+  canonical production URL from `site.config.json` (or `--site-url`) —
+  independent of `--base`. The production-domain strategy never changes.
+- `--noindex` (or `NOINDEX=1`) additionally empties the sitemap and emits
+  `Disallow: /` robots.txt — intended for private prototype deploys. The
+  `/redesign/` page is page-level noindexed in every build regardless.
+- A `.nojekyll` file is emitted so GitHub Pages serves paths verbatim.
+- There is no JavaScript involved in navigation — the site is plain links,
+  so base-path routing cannot drift out of sync with the build.
+
+### GitHub Pages
+
+`.github/workflows/deploy-pages.yml` deploys on every push to `main`
+(and manual dispatch): checkout → `python3 build.py --base /barthel
+--noindex` → upload `dist/` as the Pages artifact → official
+`actions/deploy-pages`. No `dist/` is ever committed; the build needs
+nothing beyond the Python stdlib.
+
+- Live at: `https://hmarquardt.github.io/barthel/`
+- The prototype is intentionally noindexed there (private-ish sales
+  collateral). To index it anyway, drop `--noindex` from the workflow.
+
+### Production / custom domain
+
+Build with no flags (`python3 build.py`) and upload `dist/` to any static
+host serving the agency's domain (Netlify, Cloudflare Pages, S3+, Apache/
+nginx). HTTPS, redirects (including every legacy URL), HSTS, and security
+headers are covered in `docs/production-migration.md`. If deploying under a
+subpath on some other host, pass it via `--base` — no template changes.
 
 ## Asset sources
 

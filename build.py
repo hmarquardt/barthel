@@ -3,9 +3,18 @@
 
 Zero dependencies. Renders src/pages/**/*.html through shared partials,
 injects config/data values, minifies CSS/JS, and emits a clean dist/ tree.
+
+Deployment base path:
+    --base /barthel     build for GitHub project Pages (all internal URLs
+                        are prefixed; default: BASE_PATH env or '/')
+    --site-url URL      override the canonical site URL (default: config)
+    --noindex           emit robots noindex meta on every page and a
+                        Disallow-all robots.txt (for private prototypes)
 """
+import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import sys
@@ -15,6 +24,8 @@ ROOT = Path(__file__).absolute().parent
 SRC = ROOT / "src"
 DIST = ROOT / "dist"
 
+OPTIONS = argparse.Namespace(base="/", noindex=False)
+
 CONFIG = json.loads((ROOT / "site.config.json").read_text())
 DATA = json.loads((SRC / "data" / "content.json").read_text())
 
@@ -23,6 +34,8 @@ VAR_RE = re.compile(r"\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}")
 IF_RE = re.compile(r"\{\{#if\s+([a-zA-Z0-9_.! ]+?)\}\}(.*?)\{\{/if\}\}", re.S)
 EACH_RE = re.compile(r"\{\{#each\s+([a-zA-Z0-9_.]+)\}\}(.*?)\{\{/each\}\}", re.S)
 META_RE = re.compile(r"<!--meta\s*(.*?)-->", re.S)
+# root-absolute internal URLs in final HTML output (href/src/content/action)
+ROOTURL_RE = re.compile(r'((?:href|src|content|action)\s*=\s*")(/(?!/))')
 
 _page_ctx = {}
 _item_stack = []
@@ -112,6 +125,29 @@ def minify_css(css):
     return css.replace(";}", "}").strip()
 
 
+def apply_base(html):
+    """Prefix root-absolute internal URLs with the deployment base path.
+
+    Absolute URLs (https://...), protocol-relative (//), fragments (#),
+    and scheme links (mailto:, tel:) never match and pass through.
+    """
+    if OPTIONS.base == "":
+        return html
+    return ROOTURL_RE.sub(rf"\g<1>{OPTIONS.base}\g<2>", html)
+
+
+def render_robots(site_url):
+    if OPTIONS.noindex:
+        return "User-agent: *\nDisallow: /\n"
+    return (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /redesign/\n"
+        "\n"
+        f"Sitemap: {site_url.rstrip('/')}/sitemap.xml\n"
+    )
+
+
 def minify_js(js):
     js = re.sub(r"/\*.*?\*/", "", js, flags=re.S)
     js = re.sub(r"^\s*//.*$", "", js, flags=re.M)
@@ -147,7 +183,7 @@ def build():
     (DIST / "icons").mkdir()
     for icon in (ROOT / "assets" / "icons").glob("*"):
         shutil.copy(icon, DIST / "icons" / icon.name)
-    shutil.copy(ROOT / "robots.txt", DIST / "robots.txt")
+    (DIST / ".nojekyll").write_text("")
 
     # css / js
     css = minify_css((SRC / "css" / "site.css").read_text())
@@ -169,6 +205,7 @@ def build():
         out_path = DIST / rel
         if page_url == "404":
             out_path = DIST / "404.html"
+            page_url = ""  # the 404 document is served for unknown paths; canonical = site root
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
         raw = page.read_text()
@@ -180,6 +217,7 @@ def build():
         _page_ctx["url"] = page_url
         _page_ctx["cssName"] = css_name
         _page_ctx["jsName"] = js_name
+        _page_ctx["globalNoindex"] = "true" if OPTIONS.noindex else ""
 
         # nav section flags drive aria-current in the header partial
         section = meta.get("navSection", "none")
@@ -190,30 +228,62 @@ def build():
         _page_ctx["body"] = body
 
         doc = render_text((SRC / "partials" / "document.html").read_text())
+        doc = apply_base(doc)
         out_path.write_text(doc)
         out_rel = out_path.relative_to(DIST)
         print(f"  {out_rel}")
-        if meta.get("noindex") != "true":
+        if meta.get("noindex") != "true" and not OPTIONS.noindex:
             sitemap_entries.append("/" + page_url if page_url else "/")
 
-    # sitemap.xml
-    base = CONFIG["site"]["url"].rstrip("/") + "/"
-    urls = []
-    for u in sorted(set(sitemap_entries)):
-        loc = base + u.lstrip("/")
-        if not loc.endswith("/"):
-            loc += "/"
-        urls.append(
-            f"  <url><loc>{loc}</loc><changefreq>monthly</changefreq></url>"
-        )
+    # sitemap.xml (always uses the canonical production URL, never --base)
+    site_url = CONFIG["site"]["url"].rstrip("/")
+    if OPTIONS.noindex:
+        # prototype build: nothing should be indexed, so no sitemap entries
+        urls = []
+    else:
+        urls = []
+        for u in sorted(set(sitemap_entries)):
+            loc = site_url + "/" + u.lstrip("/")
+            if not loc.endswith("/"):
+                loc += "/"
+            urls.append(
+                f"  <url><loc>{loc}</loc><changefreq>monthly</changefreq></url>"
+            )
     (DIST / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "\n".join(urls)
         + "\n</urlset>\n"
     )
-    print("build complete -> dist/")
+    (DIST / "robots.txt").write_text(render_robots(site_url))
+    print(f"build complete -> dist/ (base={OPTIONS.base or '/'}, noindex={OPTIONS.noindex})")
+
+
+def main():
+    global OPTIONS
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+    parser.add_argument(
+        "--base",
+        default=os.environ.get("BASE_PATH", "/"),
+        help="deployment base path for all internal URLs (e.g. /barthel for "
+        "GitHub project Pages); default: BASE_PATH env or '/'",
+    )
+    parser.add_argument(
+        "--noindex",
+        action="store_true",
+        default=os.environ.get("NOINDEX", "") == "1",
+        help="add robots noindex meta to every page and Disallow-all robots.txt",
+    )
+    args = parser.parse_args()
+    base = args.base.strip()
+    if base == "/":
+        base = ""
+    elif base and not base.startswith("/"):
+        base = "/" + base
+    base = base.rstrip("/")
+    OPTIONS = argparse.Namespace(base=base, noindex=args.noindex)
+    build()
 
 
 if __name__ == "__main__":
-    build()
+    main()

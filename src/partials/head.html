@@ -7,6 +7,9 @@
 {{#if page.noindex}}
 <meta name="robots" content="noindex, nofollow">
 {{/if}}
+{{#if page.globalNoindex}}
+<meta name="robots" content="noindex, nofollow">
+{{/if}}
 <link rel="canonical" href="{{cfg.site.url}}/{{page.url}}{{#if page.url}}/{{/if}}">
 <link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
 <link rel="icon" href="/icons/favicon-192.png" sizes="192x192">

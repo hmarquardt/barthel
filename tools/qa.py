@@ -2,14 +2,31 @@
 """Automated QA for the built site.
 
 Checks every page for: horizontal overflow at common widths, console errors,
-broken images, aria-current nav state, mobile menu behavior, form validation,
-and keyboard-reachable focus. Requires playwright (pip install playwright
-&& playwright install chromium) and a running server (tools/serve.py).
+failed/404 asset requests, broken images, canonical/robots meta, nav
+aria-current state, internal links staying under the deployment base path,
+mobile menu behavior, form validation, and keyboard-reachable focus.
+
+Usage:
+    python3 tools/qa.py [--base URL] [--root PATH] [--expect-noindex]
+
+    --base            server origin (default http://127.0.0.1:8908)
+    --root            deployment base path the build used (default '/')
+    --expect-noindex  assert every page carries robots noindex (Pages build)
+
+Requires playwright and a running server (tools/serve.py).
 """
+import argparse
 import sys
 from playwright.sync_api import sync_playwright
 
-BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8908"
+cli = argparse.ArgumentParser()
+cli.add_argument("--base", default="http://127.0.0.1:8908")
+cli.add_argument("--root", default="/")
+cli.add_argument("--expect-noindex", action="store_true")
+args = cli.parse_args()
+ORIGIN = args.base.rstrip("/")
+ROOTPATH = args.root if args.root != "/" else ""
+BASE = ORIGIN + ROOTPATH
 
 PAGES = [
     "/", "/insurance/", "/insurance/auto/", "/insurance/home/",
@@ -18,6 +35,7 @@ PAGES = [
     "/claims-service/", "/resources/", "/contact/", "/redesign/", "/404.html",
 ]
 WIDTHS = [375, 430, 768, 1024, 1440]
+PROD = "https://www.thebarthelagency.com"
 
 failures = []
 
@@ -29,21 +47,30 @@ def check(name, ok, detail=""):
         failures.append(f"{name}: {detail}")
 
 
+def track(page):
+    """Attach console/request trackers; return the shared log list."""
+    log = {"console": [], "bad": []}
+    page.on("console", lambda m: log["console"].append(m.text) if m.type == "error" else None)
+    page.on("pageerror", lambda e: log["console"].append(str(e)))
+    page.on("requestfailed", lambda r: log["bad"].append(f"{r.url} ({r.failure})"))
+    page.on("response", lambda r: log["bad"].append(f"{r.url} -> {r.status}") if r.status >= 400 else None)
+    return log
+
+
 with sync_playwright() as p:
     browser = p.chromium.launch()
     ctx = browser.new_context(viewport={"width": 1280, "height": 900})
     page = ctx.new_page()
-    console_errors = []
-    page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
-    page.on("pageerror", lambda e: console_errors.append(str(e)))
+    log = track(page)
 
     print("== per-page checks ==")
     for path in PAGES:
-        console_errors.clear()
+        log["console"].clear()
+        log["bad"].clear()
         resp = page.goto(BASE + path, wait_until="networkidle")
         check(f"{path} status", resp.status == 200, f"got {resp.status}")
 
-        # broken images (complete + zero natural width = actual load failure)
+        # broken images
         broken = page.evaluate("""
           [...document.images]
             .filter(i => i.complete && i.naturalWidth === 0)
@@ -51,23 +78,32 @@ with sync_playwright() as p:
         """)
         check(f"{path} images", not broken, ", ".join(broken))
 
-        # title + meta description + canonical (canonical uses production URL)
+        # title + meta description
         title = page.title()
         check(f"{path} title", bool(title and title.strip()), "empty")
         desc = page.evaluate("document.querySelector('meta[name=description]')?.content || ''")
         check(f"{path} meta description", len(desc) >= 50, f"len={len(desc)}")
+
+        # canonical: always the production domain, independent of deploy base
         canon = page.evaluate("document.querySelector('link[rel=canonical]')?.href || ''")
-        expected = page.evaluate("location.pathname")
-        if expected == "/404.html":
-            expected = "/"  # 404 page is noindex; canonical pointing home is fine
-        expected_prod = "https://www.thebarthelagency.com" + expected
-        check(f"{path} canonical", canon.rstrip('/') == expected_prod.rstrip('/') or path == "/404.html", f"{canon} vs {expected_prod}")
+        if path == "/404.html":
+            check(f"{path} canonical", canon.rstrip("/") == PROD, canon)
+        else:
+            check(f"{path} canonical", canon.rstrip("/") == (PROD + path).rstrip("/"),
+                  f"{canon} vs {PROD + path}")
+
+        # robots meta (page-level or global prototype noindex)
+        robots = page.evaluate("document.querySelector('meta[name=robots]')?.content || ''")
+        if args.expect_noindex:
+            check(f"{path} robots noindex", "noindex" in robots, robots)
+        elif path == "/redesign/":
+            check("/redesign/ noindex", "noindex" in robots, robots)
 
         # single h1
         h1s = page.evaluate("document.querySelectorAll('h1').length")
         check(f"{path} single h1", h1s == 1, f"{h1s} h1 elements")
 
-        # nav aria-current when in section
+        # nav aria-current
         cur = page.evaluate("document.querySelectorAll('.nav a[aria-current]').length")
         check(f"{path} nav aria-current", cur <= 1, f"{cur} marked")
 
@@ -75,8 +111,25 @@ with sync_playwright() as p:
         has_skip = page.evaluate("!!document.querySelector('.skip-link')")
         check(f"{path} skip link", has_skip)
 
-        # console errors
-        check(f"{path} console", not console_errors, "; ".join(console_errors[:2]))
+        # internal URLs stay under the deployment base path
+        offsite = page.evaluate("""
+          (root) => {
+            const urls = [];
+            document.querySelectorAll('a[href], img[src], link[href], script[src], iframe[src]')
+              .forEach(el => {
+                const v = el.getAttribute('href') || el.getAttribute('src');
+                if (v && v.startsWith('/') && !v.startsWith('//') && root && !v.startsWith(root + '/')) {
+                  urls.push(v);
+                }
+              });
+            return urls;
+          }
+        """, ROOTPATH)
+        check(f"{path} internal urls under base", not offsite, ", ".join(offsite[:4]))
+
+        # console errors / failed or 404 requests
+        check(f"{path} console", not log["console"], "; ".join(log["console"][:2]))
+        check(f"{path} requests ok", not log["bad"], "; ".join(log["bad"][:3]))
 
     print("== responsive overflow checks ==")
     for width in WIDTHS:
@@ -89,6 +142,17 @@ with sync_playwright() as p:
             check(f"{path} @{width} no h-overflow", over <= 0, f"{over}px overflow")
         pg.context.close()
 
+    print("== navigation under base path ==")
+    page.goto(BASE + "/", wait_until="networkidle")
+    page.click(".nav >> text=Insurance")
+    page.wait_for_load_state("networkidle")
+    check("desktop nav routes under base",
+          page.url == BASE + "/insurance/", page.url)
+    page.click(".nav >> text=Financial Services")
+    page.wait_for_load_state("networkidle")
+    check("desktop nav second click", page.url == BASE + "/financial-services/", page.url)
+    check("financial page renders", "Straightforward financial guidance" in page.content())
+
     print("== mobile menu ==")
     m = browser.new_context(viewport={"width": 390, "height": 800}).new_page()
     m.goto(BASE + "/", wait_until="networkidle")
@@ -97,9 +161,14 @@ with sync_playwright() as p:
     toggle.click()
     check("menu opens", m.locator("#mobile-nav").is_visible())
     check("aria-expanded", toggle.get_attribute("aria-expanded") == "true")
+    m.click(".mobile-nav__links a:has-text('Our Team')")
+    m.wait_for_load_state("networkidle")
+    check("mobile nav routes under base", m.url == BASE + "/team/", m.url)
+    m.goto(BASE + "/", wait_until="networkidle")
+    m.locator(".nav-toggle").click()
     m.keyboard.press("Escape")
     check("Escape closes", not m.locator("#mobile-nav").is_visible())
-    toggle.click()
+    m.locator(".nav-toggle").click()
     m.locator(".mobile-nav__close").click()
     check("close button closes", not m.locator("#mobile-nav").is_visible())
 
@@ -126,17 +195,11 @@ with sync_playwright() as p:
     page.keyboard.press("Tab")
     focused = page.evaluate("document.activeElement.className")
     check("first tab = skip link", "skip-link" in focused, focused)
-    # tab through to nav and verify visible focus
     seq = []
     for _ in range(6):
         page.keyboard.press("Tab")
         seq.append(page.evaluate("document.activeElement.textContent.trim().slice(0,20)"))
     check("nav reachable by keyboard", "Insurance" in " ".join(seq), str(seq))
-
-    print("== reduced motion respected ==")
-    has_rm = browser.new_context(reduced_motion="reduce").new_page()
-    has_rm.goto(BASE + "/")
-    check("reduced motion CSS present", True)
 
     browser.close()
 
