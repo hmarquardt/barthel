@@ -175,6 +175,15 @@ small,
   color: #d8c194;
 }
 
+.section--navy a.btn--light,
+.section--navy a.btn--primary {
+  color: var(--navy-deep);
+}
+
+.section--navy a.btn--ghost-light {
+  color: var(--white);
+}
+
 .section-head {
   max-width: 46em;
   margin-bottom: var(--space-5);
@@ -1300,6 +1309,86 @@ small,
 
 .notice--gold {
   border-left: 4px solid var(--gold);
+}
+
+/* ---- phone comparison (redesign page) ---- */
+.section-head--center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.phone-compare {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(2rem, 6vw, 4.5rem);
+  max-width: 840px;
+  margin-inline: auto;
+}
+
+.phone {
+  margin: 0;
+  flex: 1 1 280px;
+  min-width: 250px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phone__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  margin-bottom: var(--space-4);
+  white-space: nowrap;
+}
+
+.phone--before .phone__label {
+  background: var(--paper-dark);
+  color: var(--ink-mute);
+  border: 1px solid var(--line);
+}
+
+.phone--after .phone__label {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.phone__frame {
+  width: 100%;
+  border-radius: 32px;
+  background: var(--navy-deep);
+  padding: 10px;
+  box-shadow: var(--shadow-2);
+}
+
+.phone__frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 23px;
+}
+
+.phone--before .phone__frame {
+  background: #565f6d;
+}
+
+.phone figcaption {
+  margin-top: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--ink-mute);
+  text-align: center;
+  max-width: 30ch;
+}
+
+.phone-benefits {
+  max-width: 980px;
+  margin: var(--space-6) auto 0;
 }
 
 /* ==========================================================================

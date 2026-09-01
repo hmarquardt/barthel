@@ -26,7 +26,7 @@ meta-->
       <li><strong>Template defaults.</strong> Stock hero photography of models in a coffee shop stands in for the actual office, town, and team.</li>
       <li><strong>Generic copy dominates.</strong> The homepage text is boilerplate about &ldquo;a wealth of information in the form of newsletter articles&rdquo; &mdash; the agency&rsquo;s identity, history, and people are invisible.</li>
       <li><strong>Team page spacing.</strong> Uneven photo crops, inconsistent card heights, and empty gaps make a genuinely strong asset (a real, local staff) look unfinished.</li>
-      <li><strong>Weak mobile experience.</strong> Text overflows the viewport at common phone widths; contact info takes digging to find.</li>
+      <li><strong>Weak mobile experience.</strong> The small-screen view leads with a generic stock-market slideshow and boilerplate widgets; on arrival there is no phone number, no address, and no agency identity in sight.</li>
       <li><strong>Unclear conversion path.</strong> Quote links exist (seven of them) but live in a dropdown, not anywhere a first-time visitor would look.</li>
     </ul>
 
@@ -72,28 +72,54 @@ meta-->
 
 <section class="section">
   <div class="wrap">
-    <div class="split">
-      <div>
-        <span class="eyebrow">Mobile preview</span>
-        <h2>Built for the phone first.</h2>
-        <p class="lead" style="font-size:1.03rem">Most local insurance searches happen on a phone, often from a car after an accident or during open enrollment. The concept keeps tap targets large, the phone number one tap away, and text inside the viewport &mdash; the current site (left) overflows on a 390px phone; the concept (right) doesn&rsquo;t.</p>
-        <ul class="checklist">
-          <li>Sticky header with the phone number always visible</li>
-          <li>Accessible slide-in menu, keyboard and screen-reader tested</li>
-          <li>Quote links and hours one tap from any page</li>
-        </ul>
+    <div class="section-head section-head--center">
+      <span class="eyebrow">Mobile preview</span>
+      <h2>Built for the phone first.</h2>
+      <p>For many visitors, the first interaction with the agency will be on a phone. The redesign keeps navigation, contact information, and quote pathways usable at small screen sizes.</p>
+    </div>
+    <div class="phone-compare">
+      <figure class="phone phone--before">
+        <span class="phone__label">Before &middot; Current site</span>
+        <div class="phone__frame">
+          <img src="/img/old-home-mobile.png" alt="Current site rendered at 390 pixels wide: a generic stock-market slideshow and boilerplate widgets, with no phone number or agency identity visible" width="390" height="1150" loading="lazy">
+        </div>
+        <figcaption>Current site, 390px &mdash; template widgets first; no phone number on arrival</figcaption>
+      </figure>
+      <figure class="phone phone--after">
+        <span class="phone__label">After &middot; Redesign concept</span>
+        <div class="phone__frame">
+          <img src="/img/new-home-mobile.jpg" alt="Redesign concept rendered at 390 pixels wide: phone number in the top bar, real office photo, agency identity, and a quote button" width="390" height="1150" loading="lazy">
+        </div>
+        <figcaption>This concept, 390px &mdash; identity and contact on arrival</figcaption>
+      </figure>
+    </div>
+    <div class="cred__grid phone-benefits">
+      <div class="cred__item">
+        <span class="cred__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </span>
+        <div>
+          <strong>Phone always in reach</strong>
+          <span>Pinned in the top bar and hero on every page</span>
+        </div>
       </div>
-      <div style="display:flex;gap:var(--space-4);align-items:flex-start;justify-content:center">
-        <figure style="margin:0;max-width:220px">
-          <img src="/img/old-home-mobile.png" alt="Current site on a 390px phone: text clipped at the right edge" width="390" height="1150" loading="lazy" style="border:1px solid var(--line);border-radius:14px">
-          <figcaption style="font-size:0.8rem;color:var(--ink-mute);margin-top:0.5rem">Current site, 390px &mdash; clipped text</figcaption>
-        </figure>
-        <figure style="margin:0;max-width:220px;position:relative">
-          <div style="border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-2)">
-            <img src="/img/new-home-mobile.jpg" alt="Concept site on a 390px phone: hero with headline, office photo, and call button" width="390" height="1150" loading="lazy" style="display:block">
-          </div>
-          <figcaption style="font-size:0.8rem;color:var(--ink-mute);margin-top:0.5rem">This concept, 390px &mdash; resize your browser or view on a phone</figcaption>
-        </figure>
+      <div class="cred__item">
+        <span class="cred__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h10M7 17h6"/></svg>
+        </span>
+        <div>
+          <strong>Accessible mobile menu</strong>
+          <span>Large tap targets, keyboard- and screen-reader-tested</span>
+        </div>
+      </div>
+      <div class="cred__item">
+        <span class="cred__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 4l7.5 16 2.1-6.4L20 11.5z"/></svg>
+        </span>
+        <div>
+          <strong>Actions one tap away</strong>
+          <span>Quotes, service requests, and hours from any page</span>
+        </div>
       </div>
     </div>
   </div>
